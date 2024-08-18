@@ -8,20 +8,8 @@ from player import Player
 
 class PixelRunner:
 
-    def __init__(self) -> None:
-
-        pygame.init()
-        self.screen = pygame.display.set_mode((800, 400))
-        pygame.display.set_caption('Runner')
-        self.clock = pygame.time.Clock()
-        self.font = pygame.font.Font('font/Pixeltype.ttf', 50)
-        self.sky_surface = pygame.image.load('graphics/Sky.png').convert()
-        self.ground_surface = pygame.image.load('graphics/ground.png').convert()
-        self.game_active = False
-        self.start_time = 0
-        self.score = 0
-        bg_music = pygame.mixer.Sound('audio/music.wav')
-        bg_music.play(loops=-1)
+    def __init__(self, mode=pygame.display.set_mode((800, 400))) -> None:
+        self.initialize_game_screen(mode)
 
         self.snail_surf = None
         self.current_snail_frame_index = None
@@ -74,6 +62,19 @@ class PixelRunner:
         self.fly_animation_timer = pygame.USEREVENT + 3
         pygame.time.set_timer(self.fly_animation_timer, 200)
 
+    def initialize_game_screen(self, mode):
+        self.screen = mode
+        self.clock = pygame.time.Clock()
+        self.font = pygame.font.Font('font/Pixeltype.ttf', 50)
+        self.sky_surface = pygame.image.load('graphics/Sky.png').convert()
+        self.ground_surface = pygame.image.load('graphics/ground.png').convert()
+        bg_music = pygame.mixer.Sound('audio/music.wav')
+        bg_music.play(loops=-1)
+        self.game_active = False
+        self.start_time = 0
+        self.score = 0
+
+
     def initialize_snail_frames(self):
         # Snail
         snail_frame_1 = pygame.image.load('graphics/snail/snail1.png').convert_alpha()
@@ -82,12 +83,14 @@ class PixelRunner:
         self.current_snail_frame_index = 0
         self.snail_surf = self.snail_frames[self.current_snail_frame_index]
 
+
     def display_score(self):
         current_time = int(pygame.time.get_ticks() / 1000) - self.start_time
         score_surf = self.font.render(f'Score: {current_time}', False, (64, 64, 64))
         score_rect = score_surf.get_rect(center=(400, 50))
         self.screen.blit(score_surf, score_rect)
         return current_time
+
 
     def obstacle_movement(self, obstacle_list):
         if obstacle_list:
@@ -105,12 +108,14 @@ class PixelRunner:
         else:
             return []
 
+
     def collisions(self, player, obstacles):
         if obstacles:
             for obstacle_rect in obstacles:
                 if player.colliderect(obstacle_rect):
                     return False
         return True
+
 
     def collision_sprite(self):
         if pygame.sprite.spritecollide(self.player.sprite, self.obstacle_group, False):
@@ -119,6 +124,7 @@ class PixelRunner:
         else:
             return True
 
+
     def animate_fly(self):
         if self.current_fly_frame_index == 0:
             self.current_fly_frame_index = 1
@@ -126,12 +132,14 @@ class PixelRunner:
             self.current_fly_frame_index = 0
         self.fly_surf = self.fly_frames[self.current_fly_frame_index]
 
+
     def animate_snail(self):
         if self.current_snail_frame_index == 0:
             self.current_snail_frame_index = 1
         else:
             self.current_snail_frame_index = 0
         self.snail_surf = self.snail_frames[self.current_snail_frame_index]
+
 
     def handle_player_jump(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -141,12 +149,15 @@ class PixelRunner:
             if event.key == pygame.K_SPACE and self.player_rect.bottom >= 300:
                 self.player_gravity = -20
 
+
     def get_random_obstacle(self):
         self.obstacle_group.add(Obstacle(choice(['fly', 'snail', 'snail', 'snail'])))
+
 
     def start_game(self):
         self.game_active = True
         self.start_time = int(pygame.time.get_ticks() / 1000)
+
 
     def draw_player_and_obstacles(self):
         self.screen.blit(self.sky_surface, (0, 0))
@@ -159,6 +170,7 @@ class PixelRunner:
         self.obstacle_rect_list = self.obstacle_movement(self.obstacle_rect_list)
         # collision
         self.game_active = self.collision_sprite()
+
 
     def display_summary_screen(self):
         self.screen.fill((94, 129, 162))
@@ -174,8 +186,8 @@ class PixelRunner:
         else:
             self.screen.blit(score_message, score_message_rect)
 
-    def run(self):
 
+    def run(self):
         while True:
             for event in pygame.event.get():
                 # event handler
