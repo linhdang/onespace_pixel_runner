@@ -27,14 +27,9 @@ class PixelRunner:
         self.obstacle_rect_list = []
 
         # Timer
-        self.obstacle_timer = pygame.USEREVENT + 1
-        pygame.time.set_timer(self.obstacle_timer, 1500)
+        self.obstacle_refresh_event = pygame.USEREVENT + 1
+        pygame.time.set_timer(self.obstacle_refresh_event, 1500)
 
-        self.snail_animation_timer = pygame.USEREVENT + 2
-        pygame.time.set_timer(self.snail_animation_timer, 500)
-
-        self.fly_animation_timer = pygame.USEREVENT + 3
-        pygame.time.set_timer(self.fly_animation_timer, 200)
 
     def initialize_game_screen(self, mode):
         self.screen = mode
@@ -47,23 +42,6 @@ class PixelRunner:
         self.game_active = False
         self.start_time = 0
         self.score = 0
-
-    def obstacle_movement(self, obstacle_list):
-        if obstacle_list:
-            for obstacle_rect in obstacle_list:
-                obstacle_rect.x -= 5
-
-                if obstacle_rect.bottom == 300:
-                    self.screen.blit(self.snail_surf, obstacle_rect)
-                else:
-                    self.screen.blit(self.fly_surf, obstacle_rect)
-
-            obstacle_list = [obstacle for obstacle in obstacle_list if obstacle.x > -100]
-
-            return obstacle_list
-        else:
-            return []
-
 
     def get_random_obstacle(self):
         self.obstacle_group.add(Obstacle(choice(['fly', 'snail', 'snail', 'snail'])))
@@ -99,7 +77,7 @@ class PixelRunner:
                     if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                         self.start_game()
                 if self.game_active:
-                    if event.type == self.obstacle_timer:
+                    if event.type == self.obstacle_refresh_event:
                         self.get_random_obstacle()
             if self.game_active:
                 self.draw_player_and_obstacles()
