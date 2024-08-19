@@ -51,6 +51,12 @@ class PixelRunner:
         self.game_active = True
         self.start_time = int(pygame.time.get_ticks() / 1000)
 
+    def collisions(self, player, obstacles):
+        if obstacles:
+            for obstacle_rect in obstacles:
+                if pygame.sprite.collide_rect(player.sprite, obstacle_rect):
+                    return False
+        return True
 
     def draw_player_and_obstacles(self):
         self.draw_background()
@@ -59,6 +65,7 @@ class PixelRunner:
 
         self.obstacle_group.draw(self.screen)
         self.obstacle_group.update()
+        self.game_active = self.collisions(self.player, self.obstacle_group)
 
     def draw_background(self):
         self.screen.blit(self.sky_surface, (0, 0))
