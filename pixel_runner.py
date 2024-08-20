@@ -43,6 +43,35 @@ class PixelRunner:
         self.start_time = 0
         self.score = 0
 
+    def display_score(self):
+        current_time = int(pygame.time.get_ticks() / 1000) - self.start_time
+        score_surf = self.font.render(f'Score: {current_time}', False, (64, 64, 64))
+        score_rect = score_surf.get_rect(center=(400, 50))
+        self.screen.blit(score_surf, score_rect)
+        return current_time
+
+    def display_summary_screen(self):
+        # Intro screen
+        player_stand_image = pygame.image.load('graphics/player/player_stand.png').convert_alpha()
+        player_stand = pygame.transform.rotozoom(player_stand_image, 0, 2)
+        player_stand_rect = player_stand_image.get_rect(center=(400, 200))
+        game_name = self.font.render('Pixel Runner', False, (111, 196, 169))
+        game_name_rect = game_name.get_rect(center=(400, 80))
+
+        game_message = self.font.render('Press space to run', False, (111, 196, 169))
+        game_message_rect = game_message.get_rect(center=(400, 330))
+
+        self.screen.fill((94, 129, 162))
+        self.screen.blit(player_stand, player_stand_rect)
+        self.obstacle_rect_list.clear()
+        score_message = self.font.render(f'Your score: {self.score}', False, (111, 196, 169))
+        score_message_rect = score_message.get_rect(center=(400, 330))
+        self.screen.blit(game_name, game_name_rect)
+        if self.score == 0:
+            self.screen.blit(game_message, game_message_rect)
+        else:
+            self.screen.blit(score_message, score_message_rect)
+
     def get_random_obstacle(self):
         self.obstacle_group.add(Obstacle(choice(['fly', 'snail', 'snail', 'snail'])))
 
@@ -62,7 +91,7 @@ class PixelRunner:
         self.draw_background()
         self.player.draw(self.screen)
         self.player.update()
-
+        self.score = self.display_score()
         self.obstacle_group.draw(self.screen)
         self.obstacle_group.update()
         self.game_active = self.collisions(self.player, self.obstacle_group)
@@ -89,6 +118,8 @@ class PixelRunner:
             if self.game_active:
                 self.draw_player_and_obstacles()
 
+            else:
+                self.display_summary_screen()
 
             pygame.display.update()
             self.clock.tick(60)
